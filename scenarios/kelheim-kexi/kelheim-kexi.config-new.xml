@@ -1,0 +1,151 @@
+<?xml version="1.0" ?>
+<!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
+<config>
+	<module name="dvrp" >
+		<!-- Mode of which the network will be used for routing vehicles, calculating travel times, etc. (fleet operator's perspective). If null, no mode filtering is done; the standard network (Scenario.getNetwork()) is used -->
+		<param name="networkModes" value="car"/>
+
+		<!-- Used for estimation of travel times for VrpOptimizer by means of the exponential moving average. The weighting decrease, alpha, must be in (0,1]. We suggest small values of alpha, e.g. 0.05. The averaging starts from the initial travel time estimates. If not provided, the free-speed TTs is used as the initial estimates For more info see comments in: VrpTravelTimeEstimator, VrpTravelTimeModules, DvrpModule. -->
+		<param name="travelTimeEstimationAlpha" value="0.05" />
+	</module>
+
+	<module name="global" >
+		<param name="coordinateSystem" value="EPSG:28356" />
+		<param name="numberOfThreads" value="8"/>
+		<!-- "global" number of threads.  This number is used, e.g., for replanning, but NOT in QSim.  This can typically be set to as many cores as you have available, or possibly even slightly more. -->
+		<param name="randomSeed" value="4711" />
+	</module>
+	<module name="multiModeDrt">
+		<parameterset type="drt">
+			<parameterset type="ExtensiveInsertionSearch"/>
+
+			<!-- If true, the startLink is changed to last link in the current schedule, so the taxi starts the next day at the link where it stopped operating the day before. False by default. -->
+			<param name="changeStartLinkToLastLinkInSchedule" value="false"/>
+			<!-- Defines the slope of the maxTravelTime estimation function (optimisation constraint), i.e. maxTravelTimeAlpha * estimated_drt_travel_time + maxTravelTimeBeta. Alpha should not be smaller than 1. -->
+			<param name="maxTravelTimeAlpha" value="1.5"/>
+			<!-- Defines the shift of the maxTravelTime estimation function (optimisation constraint), i.e. maxTravelTimeAlpha * estimated_drt_travel_time + maxTravelTimeBeta. Beta should not be smaller than 0. -->
+			<param name="maxTravelTimeBeta" value="1200.0"/>
+			<!-- Max wait time for the bus to come (optimisation constraint). -->
+			<param name="maxWaitTime" value="1200.0"/>
+			<!-- Maximum walk distance to next stop location in stationbased system. -->
+			<param name="maxWalkDistance" value="1500.0"/>
+
+			<!-- Operational Scheme, either door2door or stopbased. door2door by default -->
+			<param name="operationalScheme" value="stopbased"/>
+
+			<!-- Bus stop duration. -->
+			<param name="stopDuration" value="60.0"/>
+
+			<!-- Stop locations file (transit schedule format, but without lines) for DRT stops. Used only for the stopbased mode -->
+			<param name="transitStopFile" value="./drt-stops/SEQ_DRT_Stops.xml"/>
+
+			<!-- An XML file specifying the vehicle fleet. The file format according to dvrp_vehicles_v1.dtd -->
+			<param name="vehiclesFile" value="./drt-vehicles/fleet.xml"/>
+
+			<!-- Writes out detailed DRT customer stats in each iteration. True by default. -->
+			<param name="writeDetailedCustomerStats" value="true"/>
+
+			<parameterset type="zonalSystem">
+				<param name="zonesGeneration" value="GridFromNetwork"/>
+				<param name="cellSize" value="2000"/>
+			</parameterset>
+
+			<parameterset type="drtfare">
+				<param name="basefare" value="0.0"/>
+				<!-- Daily subscription fee (fee = positive value) -->
+				<param name="dailySubscriptionFee" value="0.5"/>
+				<!-- taxi fare per meter (fee = positive value) -->
+				<param name="distanceFare_m" value="0.0002"/>
+				<!-- taxi fare per hour (fee = positive value) -->
+				<param name="timeFare_h" value="3.6"/>
+			</parameterset>
+		</parameterset>
+	</module>
+
+	<module name="network">
+		<param name="inputNetworkFile" value="SEQ_network_modified.xml.gz"/>
+	</module>
+
+	<module name="plans">
+		<param name="inputPlansFile" value="MATsim_good_togo.xml"/>
+	</module>
+
+	<module name="qsim">
+		<param name="simStarttimeInterpretation" value="onlyUseStarttime"/>
+		<param name="numberOfThreads" value="8"/>
+		<param name="endTime" value="30:00:00"/>
+		<param name="insertingWaitingVehiclesBeforeDrivingVehicles" value="true"/>
+		<param name="snapshotStyle" value="queue"/>
+	</module>
+
+	<module name="controler">
+		<param name="outputDirectory" value="test/output/SEQ_drt"/>
+		<param name="overwriteFiles" value="deleteDirectoryIfExists"/>
+		<param name="firstIteration" value="0"/>
+		<param name="lastIteration" value="3"/>
+	</module>
+
+	<module name="planCalcScore">
+		<param name="activityType_0" value="dummy"/>
+		<param name="activityTypicalDuration_0" value="8:00:00"/>
+		<param name="earlyDeparture" value="-0.0" />
+		<param name="lateArrival" value="-31.27237618	" />
+		<param name="waiting" value="-0.0" />
+		<param name="waitingPt" value="0" />
+
+		<parameterset type="modeParams" ><!-- car -->
+			<param name="mode" value="car" />
+			<param name="constant" value="-53.548" />
+			<param name="marginalUtilityOfTraveling_util_hr" value="-0.0" />
+			<param name="monetaryDistanceRate" value="-0.00016" /><!-- cost in dollar/m -->
+		</parameterset>
+
+		<parameterset type="modeParams" ><!-- pt -->
+			<param name="mode" value="pt" />
+			<param name="constant" value="0" />
+			<!--				<param name="constant" value="-1.28297513" />-->
+			<param name="marginalUtilityOfTraveling_util_hr" value="0" />
+			<param name="dailyMonetaryConstant" value="-0.66" />
+		</parameterset>
+
+		<parameterset type="modeParams" ><!-- walk -->
+			<param name="mode" value="walk" />
+			<param name="constant" value="0" />
+			<param name="marginalUtilityOfDistance_util_m" value="0.0" />
+			<param name="marginalUtilityOfTraveling_util_hr" value="0" />
+		</parameterset>
+
+		<parameterset type="modeParams" ><!-- bike -->
+			<param name="mode" value="bike" />
+			<param name="constant" value="-3.03305065" />
+			<param name="marginalUtilityOfDistance_util_m" value="0.0" />
+			<param name="marginalUtilityOfTraveling_util_hr" value="0" />
+		</parameterset>
+	</module>
+	<module name="strategy">
+		<!-- We focus only on DynAgents. "Standard" agents do not change their behaviour -->
+		<param name="maxAgentPlanMemorySize" value="1"/>
+		<param name="ModuleProbability_1" value="1.0"/>
+		<param name="Module_1" value="BestScore"/>
+	</module>
+	<module name="strategy">
+		<parameterset type="strategysettings">
+			<param name="strategyName" value="BestScore"/>
+			<param name="weight" value="0.2"/>
+		</parameterset>
+
+		<parameterset type="strategysettings">
+			<param name="strategyName" value="ChangeSingleTripMode"/>
+			<param name="weight" value="0.1"/>
+		</parameterset>
+	</module>
+
+	<module name="subtourModeChoice">
+		<param name="considerCarAvailability" value="true"/>
+		<param name="modes" value="car,bike,walk,drt,pt"/>
+	</module>
+
+	<module name="changeMode">
+		<param name="modes" value="car,bike,walk,pt,drt"/>
+	</module>
+</config>

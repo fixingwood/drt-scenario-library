@@ -9,7 +9,7 @@
 
 	<module name="dvrp">
 		<parameterset type="travelTimeMatrix">
-			<param name="cellSize" value="200"/>
+			<param name="cellSize" value="600"/>
 			<param name="maxNeighborDistance" value="10000"/>
 		</parameterset>
 	</module>
@@ -18,20 +18,20 @@
 		<parameterset type="drt">
 			<parameterset type="ExtensiveInsertionSearch"/>
 			<param name="maxTravelTimeAlpha" value="1.5"/>
-            <param name="maxTravelTimeBeta" value="1200.0"/>
-            <param name="maxWaitTime" value="1200.0"/>
-            <param name="maxWalkDistance" value="1500.0"/>
-            <param name="rejectRequestIfMaxWaitOrTravelTimeViolated" value="false" />
-            <!-- Operational Scheme, either door2door or stopbased. door2door by default -->
-            <param name="operationalScheme" value="stopbased"/>
-            <!-- Bus stop duration. -->
-            <param name="stopDuration" value="60.0"/>
-            <!-- Stop locations file (transit schedule format, but without lines) for DRT stops. Used only for the stopbased mode -->
-            <param name="transitStopFile" value="drt-stops/drt-stops.xml"/>
-			<param name="vehiclesFile" value="drt-vehicles/3-8_seater-drt-vehicles.xml"/>
+			<param name="maxTravelTimeBeta" value="1200.0"/>
+			<param name="maxWaitTime" value="1200.0"/>
+			<param name="maxWalkDistance" value="1500.0"/>
+			<param name="rejectRequestIfMaxWaitOrTravelTimeViolated" value="false" />
+			<!-- Operational Scheme, either door2door or stopbased. door2door by default -->
+			<param name="operationalScheme" value="stopbased"/>
+			<!-- Bus stop duration. -->
+			<param name="stopDuration" value="60.0"/>
+			<!-- Stop locations file (transit schedule format, but without lines) for DRT stops. Used only for the stopbased mode -->
+			<param name="transitStopFile" value="drt-stops/SEQ_DRT-Stops.xml"/>
+			<param name="vehiclesFile" value="drt-vehicles/fleet.xml"/>
 			<parameterset type="zonalSystem">
 				<param name="zonesGeneration" value="GridFromNetwork"/>
-				<param name="cellSize" value="500"/>
+				<param name="cellSize" value="2000"/>
 			</parameterset>
 
 			<parameterset type="rebalancing">
@@ -56,11 +56,11 @@
 	</module>
 
 	<module name="network">
-		<param name="inputNetworkFile" value="kelheim-drt.network.xml.gz"/>
+		<param name="inputNetworkFile" value="SEQ_network_modified.xml.gz"/>
 	</module>
 
 	<module name="plans">
-		<param name="inputPlansFile" value="kelheim-kexi.plans.xml.gz"/>
+		<param name="inputPlansFile" value="MATsim_good_togo.xml"/>
 	</module>
 
 	<module name="qsim">
@@ -77,7 +77,7 @@
 		<param name="outputDirectory" value="scenarios/output/kelheim-kexi/latest-run"/>
 		<param name="overwriteFiles" value="deleteDirectoryIfExists"/>
 		<param name="firstIteration" value="0"/>
-		<param name="lastIteration" value="1"/>
+		<param name="lastIteration" value="2"/>
 	</module>
 
 	<module name="planCalcScore">
@@ -86,10 +86,156 @@
 		<param name="traveling_drt" value="-6"/>
 	</module>
 
+	<module name="planCalcScore">
+		<param name="fractionOfIterationsToStartScoreMSA" value="0.9"/>
+		<param name="writeExperiencedPlans" value="true"/>
+
+		<parameterset type="scoringParameters">
+			<!-- mode ASCs come from auto-calibration-->
+			<!-- For a bit of documentation on the non-zero marginal utilities per m, see the following link-->
+			<!-- https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/kelheim/kelheim-v3.0/input/matsim-kelheim-v3.0-calibration-mode-parameters.pdf -->
+			<param name="waitingPt" value="-1.6"/>
+
+			<parameterset type="modeParams">
+				<param name="constant" value="2.45" />
+				<param name="marginalUtilityOfDistance_util_m" value="-2.5E-4" /> <!-- need this to fit the KEXI real data (Jan' 2022 - July 2023)-->
+				<param name="marginalUtilityOfTraveling_util_hr" value="0.0" />
+				<param name="mode" value="drt" />
+				<param name="monetaryDistanceRate" value="0.0" />
+			</parameterset>
+
+			<parameterset type="modeParams" >
+				<param name="constant" value="0.10908902922956654" />
+				<param name="dailyMonetaryConstant" value="-5.3" />
+				<param name="dailyUtilityConstant" value="0.0" />
+				<param name="marginalUtilityOfDistance_util_m" value="0.0" />
+				<param name="marginalUtilityOfTraveling_util_hr" value="-0.0" />
+				<param name="mode" value="car" />
+				<param name="monetaryDistanceRate" value="-2.0E-4" />
+			</parameterset>
+			<parameterset type="modeParams" >
+				<param name="constant" value="0.0449751479497542" />
+				<param name="dailyMonetaryConstant" value="0.0" />
+				<param name="dailyUtilityConstant" value="0.0" />
+				<param name="marginalUtilityOfDistance_util_m" value="0.0" />
+				<param name="marginalUtilityOfTraveling_util_hr" value="-0.0" />
+				<param name="mode" value="pt" />
+				<param name="monetaryDistanceRate" value="0.0" />
+			</parameterset>
+			<parameterset type="modeParams" >
+				<param name="constant" value="-0.9059637590522914" />
+				<param name="dailyMonetaryConstant" value="0.0" />
+				<param name="dailyUtilityConstant" value="0.0" />
+				<param name="marginalUtilityOfDistance_util_m" value="0.0" />
+				<param name="marginalUtilityOfTraveling_util_hr" value="-3.0" /> <!-- see comment above-->
+				<param name="mode" value="bike" />
+				<param name="monetaryDistanceRate" value="0.0" />
+			</parameterset>
+			<parameterset type="modeParams" >
+				<param name="constant" value="0.0" />
+				<param name="dailyMonetaryConstant" value="0.0" />
+				<param name="dailyUtilityConstant" value="0.0" />
+				<param name="marginalUtilityOfDistance_util_m" value="0.0" />
+				<param name="marginalUtilityOfTraveling_util_hr" value="-0.0" />
+				<param name="mode" value="walk" />
+				<param name="monetaryDistanceRate" value="0.0" />
+			</parameterset>
+
+		</parameterset>
+	</module>
+
 	<module name="strategy">
 		<!-- We focus only on DynAgents. "Standard" agents do not change their behaviour -->
 		<param name="maxAgentPlanMemorySize" value="1"/>
 		<param name="ModuleProbability_1" value="1.0"/>
 		<param name="Module_1" value="KeepLastSelected"/>
+	</module>
+
+
+	<module name="subtourModeChoice">
+		<param name="chainBasedModes" value="car,bike"/>
+		<param name="modes" value="car,pt,bike,walk,drt"/>
+		<param name="considerCarAvailability" value="false"/>
+		<param name="behavior" value="betweenAllAndFewerConstraints"/>
+		<param name="probaForRandomSingleTripMode" value="0.5"/>
+		<param name="coordDistance" value="100"/>
+	</module>
+
+	<module name="changeMode">
+		<param name="modes" value="car,bike,walk,pt,drt"/>
+	</module>
+
+	<module name="strategy">
+		<parameterset type="strategysettings">
+			<param name="strategyName" value="BestScore"/>
+			<param name="weight" value="0.2"/>
+		</parameterset>
+
+		<parameterset type="strategysettings">
+			<param name="strategyName" value="ChangeSingleTripMode"/>
+			<param name="weight" value="0.1"/>
+		</parameterset>
+	</module>
+
+	<module name="transit">
+		<param name="transitScheduleFile" value="PT/transitSchedule.xml"/>
+		<param name="vehiclesFile" value="PT/transitVehicles.xml"/>
+		<param name="useTransit" value="true"/>
+	</module>
+
+	<module name="transitRouter">
+		<!-- Factor with which direct walk generalized cost is multiplied before it is compared to the pt generalized cost.  Set to a very high value to reduce direct walk results. -->
+		<param name="directWalkFactor" value="1.0"/>
+		<!-- maximum beeline distance between stops that agents could transfer to by walking -->
+		<param name="maxBeelineWalkConnectionDistance" value="300.0"/>
+	</module>
+
+	<module name="swissRailRaptor">
+		<!--  Sets whether intermodal access and egress modes are selected by least cost (default) or randomly chosen out of the available access / egress modes.  -->
+		<param name="intermodalAccessEgressModeSelection" value="CalcLeastCostModePerStop"/>
+		<!--  Possible values: Default, Individual  -->
+		<param name="scoringParameters" value="Default"/>
+		<param name="transferPenaltyBaseCost" value="0.0"/>
+		<param name="transferPenaltyCostPerTravelTimeHour" value="0.0"/>
+		<param name="transferPenaltyMaxCost" value="Infinity"/>
+		<param name="transferPenaltyMinCost" value="-Infinity"/>
+		<!--  time deducted from transfer walk leg during transfers between pt legs in order to avoid missing a vehicle by a few seconds due to delays.  -->
+		<param name="transferWalkMargin" value="5.0"/>
+		<!--  If true, SwissRailRaptor tries to detect when agents cannot board a vehicle in the previous iteration because it is already full and tries to find an alternative route instead.  -->
+		<param name="useCapacityConstraints" value="false"/>
+		<param name="useModeMappingForPassengers" value="false"/>
+		<param name="useRangeQuery" value="false"/>
+		<param name="useIntermodalAccessEgress" value="true"/>
+		<parameterset type="intermodalAccessEgress">
+			<!--  Radius from the origin / destination coord in which transit stops are searched. Only if less than 2 transit stops are found the search radius is increased step-wise until the maximum search radius set in param radius is reached.  -->
+			<param name="initialSearchRadius" value="10000.0"/>
+			<!--  If the mode is routed on the network, specify which linkId acts as access link to this stop in the transport modes sub-network.  -->
+			<param name="linkIdAttribute" value="null"/>
+			<!--  Radius from the origin / destination coord in which transit stops are accessible by this mode.  -->
+			<param name="maxRadius" value="10000.0"/>
+			<param name="mode" value="drt"/>
+			<param name="personFilterAttribute" value="null" />
+			<param name="personFilterValue" value="null" />
+			<!--  If less than 2 stops were found in initialSearchRadius take the distance of the closest transit stop and add this extension radius to search again.The search radius will not exceed the maximum search radius set in param radius. Default is 200 meters.  -->
+			<param name="searchExtensionRadius" value="1000.0"/>
+			<!--  The share of the trip crowfly distance within which the stops for access and egress will be searched for. This is a harder constraint than initial search radius. Default is positive infinity.  -->
+			<param name="shareTripSearchRadius" value="Infinity"/>
+			<!--  Name of the transit stop attribute used to filter stops that should be included in the set of potential stops for access and egress. The attribute should be of type String. 'null' disables the filter and all stops within the specified radius will be used.  -->
+			<param name="stopFilterAttribute" value="allowDrtAccessEgress"/>
+			<!--  Only stops where the filter attribute has the value specified here will be considered as access or egress stops.  -->
+			<param name="stopFilterValue" value="true"/>
+		</parameterset>
+		<parameterset type="intermodalAccessEgress">
+			<param name="initialSearchRadius" value="1500.0"/>
+			<param name="linkIdAttribute" value="null"/>
+			<param name="maxRadius" value="100000.0"/>
+			<param name="mode" value="walk"/>
+			<param name="personFilterAttribute" value="null"/>
+			<param name="personFilterValue" value="null"/>
+			<param name="searchExtensionRadius" value="1000.0"/>
+			<param name="shareTripSearchRadius" value="Infinity"/>
+			<param name="stopFilterAttribute" value="null"/>
+			<param name="stopFilterValue" value="null"/>
+		</parameterset>
 	</module>
 </config>
