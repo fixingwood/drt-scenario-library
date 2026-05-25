@@ -12,7 +12,7 @@
 	</module>
 
 	<module name="plans">
-		<param name="inputPlansFile" value="merged_1pct_xtaxi.xml.gz"/>
+		<param name="inputPlansFile" value="merged_5pct_xtaxi.xml.gz"/>
 	</module>
 
 	<module name="transit">
